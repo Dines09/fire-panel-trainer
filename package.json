@@ -7,7 +7,8 @@
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
-    "test": "node tests/engine.test.js && node tests/lessons.test.js"
+    "test": "node tests/engine.test.js && node tests/lessons.test.js",
+    "deploy": "git subtree push --prefix dist origin gh-pages"
   },
   "dependencies": {
     "react": "^19.3.0",

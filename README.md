@@ -6,6 +6,7 @@ It works on a phone (upright or sideways), a tablet and a laptop.
 
 ## Open it
 
+- **On your phone or any browser:** https://dines09.github.io/fire-panel-trainer/
 - **Simplest:** double-click `dist/index.html`. No internet and no server needed.
 - **As an installable app (PWA):** put the contents of `dist/` on any web host (for example GitHub Pages). On Android tap **⤓ Install**; on iPhone use Share → *Add to Home Screen*. After the first visit it works offline.
 
@@ -52,6 +53,8 @@ npm run dev      # http://localhost:8080, rebuilds when a file changes
 npm run build    # writes dist/
 npm test         # panel logic, and a walk through every lesson
 ```
+
+To put a new version on the web page: `npm run build`, commit (the built `dist/` folder is part of the repository), `git push`, then `npm run deploy`. The page is served from the `gh-pages` branch, which holds only the contents of `dist/`.
 
 | File | What is in it |
 |---|---|
