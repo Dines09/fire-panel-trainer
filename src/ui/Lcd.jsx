@@ -88,6 +88,20 @@ function Pick({ vm }) {
   );
 }
 
+// A question before the panel acts: the text top left, the two answers on the
+// bottom line under the keys that give them (left arrow = Abort, OK = Confirm).
+function Ask({ vm }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col px-[12px] pt-[10px]">
+      {vm.lines.map((l, i) => <div key={i} className={i ? 'text-[13.5px] leading-[20px]' : 'mb-[4px] text-[16px] font-bold'}>{l}</div>)}
+      <div className="mt-auto mb-[6px] flex items-center justify-between text-[14px] font-bold">
+        <span className="border-2 border-[#141414] bg-white px-[10px] py-[3px]">◄ {vm.choice[0]}</span>
+        <span className="border-2 border-[#141414] bg-[#1d2b4f] px-[10px] py-[3px] text-white">{vm.choice[1]} OK</span>
+      </div>
+    </div>
+  );
+}
+
 function Form({ vm }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col justify-center gap-[7px] px-[14px]">
@@ -152,22 +166,13 @@ const POPUP = { err: 'border-[#cf1b1b]', ok: 'border-[#0b7d32]', info: 'border-[
 
 export function Lcd({ vm }) {
   if (vm.kind === 'lamp') return <div className="h-[272px] w-[480px]" style={{ background: LAMP[vm.phase] }} />;
-  const Body = { list: Rows, menu: Menu, pick: Pick, form: Form, detail: Detail, status: Status, home: Home }[vm.kind];
+  const Body = { list: Rows, menu: Menu, pick: Pick, ask: Ask, form: Form, detail: Detail, status: Status, home: Home }[vm.kind];
   return (
     <div className="lcd relative flex h-[272px] w-[480px] flex-col overflow-hidden bg-[#f6f7f4] text-[#141414]">
       <Header vm={vm} />
       {Body ? <Body vm={vm} /> : (
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[6px] px-[18px] text-center">
           {vm.lines.map((l, i) => <div key={i} className={i ? 'text-[13.5px]' : 'text-[16px] font-bold'}>{l}</div>)}
-          {vm.choice && (
-            <div className="mt-[10px] flex gap-[26px]">
-              {vm.choice.map((c, i) => (
-                <span key={c} className={`min-w-[112px] border-2 border-[#141414] px-[10px] py-[4px] text-[14px] font-bold ${i ? 'bg-[#1d2b4f] text-white' : 'bg-white'}`}>
-                  <span className="mr-[8px] text-[10.5px] font-normal">{i ? 'OK' : 'ESC'}</span>{c}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       )}
       <Footer lines={vm.footer} />

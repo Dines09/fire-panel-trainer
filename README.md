@@ -15,7 +15,7 @@ It works on a phone (upright or sideways), a tablet and a laptop.
 | Lesson | What it teaches |
 |---|---|
 | Know the panel | Lamps, keys, Status, Menu, ESC, dimmer |
-| Log in | Access level 2B with code **2222** (level 3: **3333**) |
+| Log in | Access level 2B with code **2222** (level 3: **3333**); the panel also asks for the code by itself when something needs it |
 | Fire alarm: mute and reset | MUTE without login only silences the buzzer; log in, MUTE, details, RESET |
 | Manual call point | RESET fails until the call point itself is reset |
 | Several fire alarms | MULTIPLE ALARMS, first and last alarm always shown, Reset All |
@@ -23,7 +23,7 @@ It works on a phone (upright or sideways), a tablet and a laptop.
 | Reconnect a detector | Disablement list and RESET; lamp goes off |
 | Disable a zone for a set time | Timer disablement; call points stay in service |
 | Fault | Fault code, MUTE, find the cause, RESET |
-| Detector test | Zone test mode: pick the zone from the list, confirm (Abort / OK); alarms shown and logged, no bells |
+| Detector test | Zone test mode: pick the zone from the list, then Abort (◄) or Confirm (OK); alarms shown and logged, no bells |
 | Lamp and display test | Menu » 5 » 4 |
 
 **Learning mode** shows each step and highlights the key to press. **Free practice** gives no guidance: use the **Ship** box to start smoke at any detector, break a call point, remove a detector or cause a central fault, then handle it on the panel.
@@ -67,7 +67,7 @@ To put a new version on the web page: `npm run build`, commit (the built `dist/`
 
 ## Sources and disclaimer
 
-Screens, key functions, the menu tree, access levels and fault codes follow the *Salwico Cargo Addressable Fire Detection System User Guide* (Consilium, document 5100332-01A01, April 2010). Where the guide does not show a screen (home screen, entry screens), the layout here is an approximation.
+Screens, key functions, the menu tree, access levels and fault codes follow the *Salwico Cargo Addressable Fire Detection System User Guide* (Consilium, document 5100332-01A01, April 2010). Faceplate colours and key positions follow Consilium's product picture of the Control/Repeater M 4.3 Cargo. Where the guide does not show a screen (home screen, entry screens, questions), the layout here is an approximation.
 
 Developed by ETO.
 

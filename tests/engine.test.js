@@ -45,8 +45,11 @@ test('mute without login only silences the local buzzer', () => {
   assert.equal(p.leds.fire, 'flash');
   assert.equal(p.out.delay.phase, 't1');
   assert.match(p.popup.text, /Local buzzer silenced/);
-  p.key('reset');
-  assert.match(p.popup.text, /Access level 2B required/);
+  p.key('reset'); // asks who you are, then carries on with the reset
+  assert.match(p.view().note, /Access level 2B required/);
+  keys(p, '1 2 2 2 2 enter');
+  assert.equal(p.level, 2);
+  assert.match(p.popup.text, /still in alarm condition/);
   assert.equal(p.fires.length, 1);
 });
 
@@ -132,10 +135,13 @@ test('several alarms: first and last always shown, Multiple Alarms steps through
 
 test('disable one detector through the menu; it stays silent and the lamp stays on', () => {
   const p = panel();
-  keys(p, 'menu 3 1');
-  assert.match(p.popup.text, /Access level 2B required/);
-  login(p);
-  keys(p, 'menu 3 1 2 9 enter 1 4 enter enter 1');
+  keys(p, 'menu 3 1'); // not logged in: the panel lists the users and asks for the code
+  assert.equal(p.view().title, 'LOGIN');
+  assert.match(p.view().note, /Access level 2B required/);
+  assert.equal(p.view().items.length, 3);
+  keys(p, 'ok 2 2 2 2 enter');
+  assert.equal(p.view().title, 'NEW DISABLEMENT'); // and goes straight on
+  keys(p, '2 9 enter 1 4 enter enter 1');
   assert.equal(p.view().title, 'DISABLEMENT ACTIVATED');
   assert.equal(p.dis.length, 1);
   assert.equal(p.disName(p.dis[0]), 'ZONE 9 SMOKE 4');
@@ -262,7 +268,7 @@ test('zone test mode: alarm shown, no bells, resets itself, Test lamp on', () =>
   keys(p, 'down down down down ok');
   assert.match(p.view().lines[0], /Set ZONE 5 in test mode/);
   assert.deepEqual(p.view().choice, ['Abort', 'Confirm']);
-  p.key('esc'); // Abort: back to the list, nothing set
+  p.key('left'); // left arrow = Abort: back to the list, nothing set
   assert.deepEqual([p.view().kind, p.dis.length], ['pick', 0]);
   keys(p, 'ok ok');
   assert.equal(p.leds.test, 'on');
@@ -296,9 +302,11 @@ test('pre-alarm: mute only, clears with the smoke, turns into a fire alarm', () 
 test('settings: level 3 for the delay times, lamp test lights every lamp', () => {
   const p = panel({ level: 2 });
   keys(p, 'menu 5 5');
-  assert.match(p.popup.text, /Access level 3 required/);
-  login(p, '3333', '2');
-  keys(p, 'menu 5 5 1 3 0 enter');
+  assert.match(p.view().note, /Access level 3 required/);
+  assert.equal(p.view().items[1].sel, true); // Power User is offered
+  keys(p, 'ok 3 3 3 3 enter');
+  assert.equal(p.view().title, 'ALARM DELAY TIMES');
+  keys(p, '1 3 0 enter');
   assert.equal(p.set.t1, 30);
   keys(p, 'menu 5 4');
   assert.equal(p.view().kind, 'lamp');

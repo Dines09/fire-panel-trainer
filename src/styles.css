@@ -56,54 +56,66 @@ body {
 @keyframes guide-flash { from { background: #33414b; } }
 
 /* ---------- faceplate ---------- */
+/* Charcoal housing; .pad is the grey operating area printed on it. */
 .plate {
-  background: linear-gradient(#eef0f2, #dde0e4);
-  border: 2px solid #22262b;
-  border-radius: 22px;
-  box-shadow: inset 0 0 0 5px #f6f7f8, inset 0 0 0 6px #b8bdc3, 0 10px 30px rgba(0, 0, 0, 0.5);
-  color: #22262b;
+  background: linear-gradient(#232427, #17181a);
+  border: 2px solid #050506;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 4px #2c2d31, inset 0 0 0 5px #0b0b0c, 0 10px 30px rgba(0, 0, 0, 0.55);
+  color: #f2f3f4;
   touch-action: manipulation;
 }
+.pad { position: absolute; background: linear-gradient(#b0b3b8, #9b9ea3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+
+/* Every key: --kbg face, --kfg symbol, --kbd rim. */
 .key {
+  --kbg: #f1f2f3; --kfg: #1b1c1f; --kbd: #1b1c1f;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
-  color: #22262b;
-  border: 2px solid #22262b;
-  box-shadow: 0 2.5px 0 rgba(34, 38, 43, 0.35);
+  background: var(--kbg);
+  color: var(--kfg);
+  border: 2.5px solid var(--kbd);
+  box-shadow: 0 2.5px 0 rgba(0, 0, 0, 0.45), inset 0 2px 2px rgba(255, 255, 255, 0.35);
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
 }
-.key:active { transform: translateY(2px); background: #cdd2d8; box-shadow: none; }
-.key-green { color: #0c7a34; border-color: #0c7a34; }
-.key-red { color: #c51616; border-color: #c51616; }
+.key:active { transform: translateY(2px); filter: brightness(0.78); box-shadow: none; }
+.key-light { --kbg: #f4f5f6; }
+.key-nav { --kbg: #dfe0e3; --kfg: #4a4c51; --kbd: #77797e; }
+.key-pad { --kbg: radial-gradient(circle at 35% 30%, #7a6846, #3d3323 70%); --kfg: #f6eedb; --kbd: #0f0d09; }
+.key-reset { --kbg: #f4f5f6; --kfg: #0e8a3c; --kbd: #0e8a3c; border-width: 4px; }
+.key-mute { --kbg: #d62a25; --kfg: #fff; --kbd: #f4f5f6; border-width: 3px; }
+/* indicator keys and the Status / Menu tabs are printed outlines on the grey area */
+.key-ind { --kbg: rgba(255, 255, 255, 0.07); --kbd: #3b3d42; box-shadow: none; }
+.key-tab { --kbg: linear-gradient(#b0b3b8, #a4a7ac); --kfg: #fff; --kbd: transparent; border-width: 0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
 .key-hl, .led-hl { z-index: 2; animation: key-hl 0.9s ease-in-out infinite; }
 @keyframes key-hl {
-  0%, 100% { box-shadow: 0 0 0 4px #ffb020, 0 0 14px 6px rgba(255, 176, 32, 0.85); }
-  50% { box-shadow: 0 0 0 2px #ffb020, 0 0 4px 1px rgba(255, 176, 32, 0.4); }
+  0%, 100% { box-shadow: 0 0 0 4px #ffb020, 0 0 14px 6px rgba(255, 176, 32, 0.9); }
+  50% { box-shadow: 0 0 0 2px #ffb020, 0 0 4px 1px rgba(255, 176, 32, 0.45); }
 }
 
 /* A lamp is its dark body plus a lit layer; "flash" follows the shared
    half-second beat on <html data-blink>, so all lamps flash together. */
-.lamp { position: relative; background: #fbfbfc; border: 1.5px solid #22262b; }
+.lamp { position: relative; background: #f4f5f6; }
+.lamp-dot { background: #e6e7e9; box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.45); }
 .lamp .lit { position: absolute; inset: -1px; border-radius: inherit; opacity: 0; }
-.lamp-red .lit { background: #e21a1a; box-shadow: 0 0 12px 3px rgba(226, 26, 26, 0.8); }
-.lamp-orange .lit { background: #ff8a1a; box-shadow: 0 0 12px 3px rgba(255, 138, 26, 0.8); }
-.lamp-yellow .lit { background: #ffd500; box-shadow: 0 0 12px 3px rgba(255, 213, 0, 0.85); }
-.lamp-green .lit { background: #1fc24d; box-shadow: 0 0 9px 2px rgba(31, 194, 77, 0.8); }
+.lamp-red .lit { background: #ee1c1c; box-shadow: 0 0 14px 4px rgba(238, 28, 28, 0.85); }
+.lamp-orange .lit { background: #ff8a1a; box-shadow: 0 0 14px 4px rgba(255, 138, 26, 0.85); }
+.lamp-yellow .lit { background: #ffd500; box-shadow: 0 0 14px 4px rgba(255, 213, 0, 0.9); }
+.lamp-green .lit { background: #25d058; box-shadow: 0 0 10px 3px rgba(37, 208, 88, 0.85); }
 .lamp[data-state="on"] .lit,
 html[data-blink="1"] .lamp[data-state="flash"] .lit { opacity: var(--lamp-dim, 1); }
 .lamp-red[data-state="on"] svg,
 html[data-blink="1"] .lamp-red[data-state="flash"] svg { color: #fff; }
 
-/* FIRE is an outline until there is a fire alarm, as printed on the panel */
-.ind-fire { color: #f8f9fa; -webkit-text-stroke: 3.4px #22262b; paint-order: stroke fill; }
+/* FIRE is white on the grey area and turns red with a fire alarm */
+.ind-fire { color: #fff; }
 [data-state="on"] > .ind-fire,
-html[data-blink="1"] [data-state="flash"] > .ind-fire { color: #d51515; -webkit-text-stroke-color: #d51515; }
+html[data-blink="1"] [data-state="flash"] > .ind-fire { color: #e01414; text-shadow: 0 0 1px #fff; }
 
 /* ---------- display ---------- */
 .lcd { font-family: Verdana, "DejaVu Sans", Geneva, Tahoma, Inter, sans-serif; cursor: default; }

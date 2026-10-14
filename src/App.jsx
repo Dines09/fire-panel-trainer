@@ -53,6 +53,11 @@ export default function App() {
   const [speed, setSpeed] = useState(1);
   const [sheet, setSheet] = useState(null); // 'help' | 'ship'
   const [install, setInstall] = useState(null);
+  // The Ship box on a laptop: 'pinned' = fixed beside the panel, 'open' = slid over it until
+  // you click elsewhere, 'closed' = out of the way (opened again with the Ship button).
+  const [ship, setShipState] = useState(() => (store.get('shipPinned', true) ? 'pinned' : 'closed'));
+  const setShip = s => { setShipState(s); store.set('shipPinned', s === 'pinned'); };
+  const drawer = useRef(null);
   const [audio, setAudio] = useState('wait'); // 'off' | 'wait' (browser has not started it yet) | 'on'
   const live = useRef({});
   live.current = { speed, sheet, lessonId };
@@ -165,6 +170,14 @@ export default function App() {
     return () => { un(); clearInterval(poll); };
   }, [run, idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ---- an unpinned Ship box closes when you go back to the panel
+  useEffect(() => {
+    if (ship !== 'open') return undefined;
+    const away = e => { if (drawer.current && !drawer.current.contains(e.target) && !e.target.closest('[data-ship-toggle]')) setShip('closed'); };
+    document.addEventListener('pointerdown', away);
+    return () => document.removeEventListener('pointerdown', away);
+  }, [ship]);
+
   // ---- install as an app
   useEffect(() => {
     const before = e => { e.preventDefault(); setInstall(e); };
@@ -236,6 +249,9 @@ export default function App() {
     <div className="flex flex-none gap-1.5">
       {lesson && <button type="button" className={tbtn} title="Restart lesson" aria-label="Restart lesson" onClick={() => start(lessonId)}>↺</button>}
       {mode !== 'desk' && !tablet && <button type="button" className={tbtn} title="Ship: start smoke, call points and faults" onClick={() => setSheet('ship')}>Ship</button>}
+      {mode === 'desk' && ship !== 'pinned' && (
+        <button type="button" data-ship-toggle className={`${tbtn} ${ship === 'open' ? '!border-accent2 !text-accent2' : ''}`} title="Ship: start smoke, call points and faults" onClick={() => setShip(ship === 'open' ? 'closed' : 'open')}>Ship</button>
+      )}
       <button
         type="button" className={`${tbtn} ${audio === 'off' ? 'opacity-50' : audio === 'wait' ? '!border-accent' : ''}`} aria-label="Sound on or off"
         title={audio === 'off' ? 'Sound is off: tap to switch it on' : audio === 'wait' ? 'Sound starts with your first tap or key' : 'Sound is on: tap to switch it off'}
@@ -251,7 +267,21 @@ export default function App() {
   const plate = <Faceplate layout={layout} vm={panel.view()} leds={panel.leds} hl={hl} press={press} />;
   const shipBox = (
     <section className="rounded-xl border border-line bg-panel px-3 py-2.5">
-      <h2 className="mb-2 text-[13px] font-extrabold">Ship <span className="font-medium text-muted">· what happens away from the panel</span></h2>
+      <div className="mb-2 flex items-center gap-1.5">
+        <h2 className="min-w-0 flex-1 truncate text-[13px] font-extrabold">Ship <span className="font-medium text-muted">· away from the panel</span></h2>
+        {mode === 'desk' && (
+          <>
+            <button
+              type="button" className={`${tbtn} !h-[26px] !min-w-[28px] !px-1.5 ${ship === 'pinned' ? '!border-accent2 !text-accent2' : ''}`}
+              title={ship === 'pinned' ? 'Pinned: stays open. Click to unpin.' : 'Pin: keep this box open beside the panel'} aria-label="Pin the Ship box" aria-pressed={ship === 'pinned'}
+              onClick={() => setShip(ship === 'pinned' ? 'open' : 'pinned')}
+            >
+              <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill={ship === 'pinned' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3zM12 14v7" /></svg>
+            </button>
+            <button type="button" className={`${tbtn} !h-[26px] !min-w-[28px] !px-1.5`} title="Collapse" aria-label="Collapse the Ship box" onClick={() => setShip('closed')}>»</button>
+          </>
+        )}
+      </div>
       <Ship panel={panel} speed={speed} setSpeed={setSpeed} />
     </section>
   );
@@ -268,12 +298,13 @@ export default function App() {
       </header>
 
       {mode === 'desk' ? (
-        <main className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_370px]">
-          <div className="min-h-0 min-w-0 p-4">{plate}</div>
-          <aside className="flex min-h-0 flex-col gap-3 overflow-y-auto border-l border-line bg-bg2 p-3">
-            <Guide g={guide} />
-            {shipBox}
-          </aside>
+        <main className="relative flex min-h-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div className="flex-none px-4 pt-3"><Guide g={guide} bar /></div>
+            <div className="min-h-0 flex-1 p-4">{plate}</div>
+          </div>
+          {ship === 'pinned' && <aside className="w-[360px] flex-none overflow-y-auto border-l border-line bg-bg2 p-3">{shipBox}</aside>}
+          {ship === 'open' && <aside ref={drawer} className="absolute top-0 right-0 bottom-0 z-20 w-[360px] overflow-y-auto border-l border-line bg-bg2 p-3 shadow-[-12px_0_30px_rgba(0,0,0,.55)]">{shipBox}</aside>}
         </main>
       ) : (
         <main className="flex min-h-0 flex-1 flex-col">

@@ -9,11 +9,26 @@ const btn = 'rounded-lg border border-line bg-panel2 px-2.5 py-1.5 text-[12.5px]
 const cta = 'rounded-lg bg-accent px-3 py-1.5 text-[13px] font-bold text-[#1b1300] active:brightness-90';
 
 // ------------------------------------------------------------------ guide
-export function Guide({ g, inline }) {
+export function Guide({ g, inline, bar }) {
   const html = s => ({ __html: s || '' });
   const action = g.action && <button type="button" className={`${cta} flex-none whitespace-nowrap`} onClick={g.action.run}>{g.action.label}</button>;
   const tone = g.mode === 'DONE' ? 'border-l-ok' : g.mode === 'FREE' ? 'border-l-accent2' : 'border-l-accent';
   const modeColor = g.mode === 'DONE' ? 'text-ok' : g.mode === 'FREE' ? 'text-accent2' : 'text-accent';
+  if (bar) { // laptop: one fixed-height line above the panel, so nothing moves from step to step
+    return (
+      <div key={g.key} className={`guide-flash flex h-[58px] items-center gap-3 rounded-xl border border-line border-l-4 bg-panel px-3 ${tone}`}>
+        <div className="flex w-[52px] flex-none flex-col items-center leading-tight">
+          <span className={`text-[10.5px] font-extrabold tracking-wider ${modeColor}`}>{g.mode}</span>
+          {g.count && <span className="text-[12px] font-bold text-muted">{g.count}</span>}
+        </div>
+        <div className="guide-text line-clamp-2 min-w-0 flex-1 text-[15px] leading-[20px] font-semibold" title={(g.text + ' ' + (g.sub || '')).replace(/<[^>]+>/g, '')}>
+          <span dangerouslySetInnerHTML={html(g.text)} />
+          {g.sub && <span className="ml-2 text-[12.5px] font-normal text-muted" dangerouslySetInnerHTML={html(g.sub)} />}
+        </div>
+        {action}
+      </div>
+    );
+  }
   if (inline) {
     return (
       <div className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-line border-l-4 bg-panel px-2 py-0.5 ${tone}`}>
@@ -160,7 +175,9 @@ export function Help({ onForget, audio, onTestSound }) {
         <li><b>Lessons</b>: choose one at the top and follow the yellow highlights.</li>
         <li><b>Free practice</b>: use the <b>Ship</b> box to start smoke, break a call point or cause a fault, then deal with it on the panel.</li>
         <li><b>Access codes</b> on this trainer: <b>2222</b> for level 2B (operator), <b>3333</b> for level 3 (power user). Menu » 4 Login.</li>
-        <li>Without a code you can look at alarms and silence the panel buzzer, nothing else.</li>
+        <li>Without a code you can look at alarms and silence the panel buzzer, nothing else. Choose something that needs a higher level (New disablement, RESET) and the panel lists the users and asks for the code there and then.</li>
+        <li>When the panel asks a question, the back arrow <b>◄</b> is Abort and <b>OK</b> is Confirm.</li>
+        <li>On a laptop the <b>Ship</b> box can be pinned beside the panel (pin button) or collapsed (»); the Ship button at the top brings it back.</li>
       </ul>
 
       <h3 className={h3}>Sound</h3>

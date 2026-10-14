@@ -13,6 +13,7 @@ const final = (t, sub) => ({ t, sub, final: true });
 function nav(...path) {
   return p => {
     const st = p.stack;
+    if (top(p).t === 'login') return loginKeys(p); // the panel asked for the access code on the way
     if (!st[1] || st[1].t !== 'menu' || st[1].m !== 'main') return ['menu'];
     let cur = st[1];
     for (let i = 0; i < path.length; i++) {
@@ -33,12 +34,12 @@ const inMenu = (p, m) => top(p).t === 'menu' && top(p).m === m;
 const inList = (p, kind) => top(p).t === 'list' && top(p).kind === kind;
 const inWiz = (p, target, step) => top(p).t === 'wiz' && top(p).target === target && (!step || top(p).step === step);
 
-const loginHl = (code = '2222', user = '1') => p => {
+function loginKeys(p, code = '2222', user = '1') {
   const s = top(p);
-  if (s.t !== 'login') return nav('4')(p);
   if (s.step === 'user') return [user];
   return s.code.length < 4 ? [code[s.code.length]] : ['enter'];
-};
+}
+const loginHl = () => p => (top(p).t === 'login' ? loginKeys(p) : nav('4')(p));
 
 /** Type a number into the step that is open, then Enter. */
 const typeHl = digits => p => {
@@ -118,10 +119,12 @@ export const LESSONS = [
     ],
   },
   {
-    id: 'disable', title: 'Disable a detector (hot work)', level: 2,
+    id: 'disable', title: 'Disable a detector (hot work)', level: 1,
     steps: [
       { t: 'Welding is planned in the engine room workshop. With a hot work permit, detector <b>ZONE 9 SMOKE 4</b> is to be disabled so that it gives no false alarm.', sub: 'A disabled detector cannot detect a real fire. Disable as little as possible, for as short as possible.', ack: true },
-      { t: 'Open <b>Menu » 3 Disablements » 1 New disablement » 2 Detectors & Manual Call Points</b>.', hl: nav('3', '1', '2'), done: p => inWiz(p, 'unit') },
+      { t: 'Open <b>Menu » 3 Disablements » 1 New disablement</b>.', hl: nav('3', '1'), done: p => top(p).t === 'login' || inMenu(p, 'newdis') },
+      { t: `You are not logged in, so the panel lists the users. Choose ${k('1')} <b>Operator</b>, type the code ${k('2')} ${k('2')} ${k('2')} ${k('2')} and press ${k('↵')}.`, sub: 'Making a disablement needs access level 2B. After the code the panel carries on where you were.', hl: nav('3', '1'), done: p => p.level >= 2 && inMenu(p, 'newdis') },
+      { t: `Now the New disablement menu is open. Press ${k('2')} <b>Detectors & Manual Call Points</b>.`, hl: nav('3', '1', '2'), done: p => inWiz(p, 'unit') },
       { t: `The zones are listed. Go to <b>zone 9</b> with ${k('▼')}, or press ${k('9')}, then ${k('OK')}.`, sub: 'Typing the zone number jumps straight to it.', hl: typeHl('9'), done: p => inWiz(p, 'unit') && top(p).step !== 'zone' },
       { t: `Detector type: press ${k('1')} for <b>Smoke detectors</b>.`, hl: ['1'], done: p => inWiz(p, 'unit') && !['zone', 'dtype'].includes(top(p).step) },
       { t: `Address: type ${k('4')} and press ${k('↵')}.`, sub: 'The display shows the location text of the address you typed.', hl: typeHl('4'), done: p => inWiz(p, 'unit') && !['zone', 'dtype', 'addr'].includes(top(p).step) },
@@ -182,7 +185,7 @@ export const LESSONS = [
       { t: 'For the routine detector test, put the zone in <b>test mode</b>: the alarms are shown and recorded, but bells and outputs stay quiet.', sub: 'Other zones keep working normally.', ack: true },
       { t: 'Open <b>Menu » 3 Disablements » 1 New disablement » 6 Test Mode</b>.', hl: nav('3', '1', '6'), done: p => inWiz(p, 'test') || p.has('test') },
       { t: `The zones are listed. Go to <b>zone 5</b> with ${k('▼')}, or press ${k('5')}, then ${k('OK')}.`, hl: typeHl('5'), done: p => top(p).t === 'confirm' || p.has('test') },
-      { t: `The panel asks before it acts: <b>Abort</b> or <b>OK</b>. Press ${k('OK')} to confirm.`, sub: 'ESC = Abort takes you back to the list with nothing changed.', hl: ['ok'], done: p => p.has('test') },
+      { t: `The panel asks before it acts: <b>Abort</b> or <b>Confirm</b>. Press ${k('OK')} to confirm.`, sub: `The back arrow ${k('◄')} is Abort: it takes you back to the list with nothing changed.`, hl: ['ok'], done: p => p.has('test') },
       { t: 'Zone 5 is in test mode. Three lamps confirm it: <b>Disablements</b>, <b>Test</b> and <b>Zone</b>.', sub: 'The zone returns to normal by itself after 2 hours.', hl: ['dis', 'led:test', 'led:zone'], ack: true },
       { t: 'Hold the test gas to smoke detector 92 (upper deck gymnasium).', act: { label: 'Test gas at detector 92 ▸', run: p => p.fieldFire(5, 92) }, done: p => p.fires.length > 0 },
       { t: 'The display shows <b>TEST ZONE 5 SMOKE 92</b>. No bells. The alarm resets itself when the gas has gone.', done: p => !p.fires.length },

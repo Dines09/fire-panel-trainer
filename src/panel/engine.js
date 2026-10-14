@@ -152,10 +152,14 @@ export class Panel {
     if (tone !== 'info') this.fx(tone);
   }
 
-  need(level) {
+  /**
+   * Not logged in high enough: the panel asks for the user and the access code
+   * right there, and carries on with what was chosen (then) once the code is in.
+   */
+  need(level, then) {
     if (this.level >= level) return true;
     this.count('denied');
-    this.say(level === 4 ? 'Access level 4 required.\nService personnel only.' : `Access level ${LEVEL_NAME[level]} required.\nMenu » 4 Login`, 'err');
+    this.go({ t: 'login', step: 'user', sel: Math.max(0, USERS.findIndex(u => u[0] === level)), code: '', need: level, then });
     return false;
   }
 
@@ -350,7 +354,7 @@ export class Panel {
   }
 
   resetFire(f) {
-    if (!f || !this.need(2)) return false;
+    if (!f || !this.need(2, () => this.resetFire(f))) return false;
     const stuck = !f.test && (this.cond.get(unitKey(f)) || {}).kind === 'fire';
     if (stuck) {
       this.count('resetFail');
@@ -388,7 +392,7 @@ export class Panel {
   }
 
   resetFault(f) {
-    if (!f || !this.need(2)) return false;
+    if (!f || !this.need(2, () => this.resetFault(f))) return false;
     if (this.causes.has(f.key)) {
       this.count('resetFail');
       this.say(`Reset not possible - the fault remains.\nCheck fault code ${f.code} in the fault code list.`, 'err', 4500);
@@ -453,7 +457,7 @@ export class Panel {
   }
 
   reconnect(d) {
-    if (!d || !this.need(2)) return false;
+    if (!d || !this.need(2, () => this.reconnect(d))) return false;
     this.removeDis(d, d.kind === 'test' ? 'Test mode ended' : 'Reconnected');
     if (!this.fires.length) this.say(this.dis.length ? 'Disablement removed.' : 'Disablement removed.\nNo disablements left.', 'ok', 2400);
     return true;
@@ -630,7 +634,7 @@ export class Panel {
       case 'night':
         this.set.dimmer = clamp(this.set.dimmer + (k === 'day' ? 1 : -1), 1, 9);
         return this.say(`Dimmer level ${this.set.dimmer}`, 'info', 1200);
-      case 'esc': return this.top.t === 'confirm' ? this.back() : this.goTop(); // on a question, ESC = Abort
+      case 'esc': return this.goTop();
       case 'menu': return this.open({ t: 'menu', m: 'main', sel: 0 });
       case 'status': return this.open({ t: 'status', sel: 0 });
       case 'shortcuts': return this.open({ t: 'menu', m: 'shortcuts', sel: 0 });
@@ -661,7 +665,7 @@ export class Panel {
       case 'fire':
         if (k === 'up' || k === 'down') this.fireSel = clamp(this.fireSel + (k === 'down' ? 1 : -1), 0, Math.max(0, this.fires.length - 1));
         else if (isOk(k) && this.fires.length) this.go({ t: 'detail', kind: 'fire', id: this.fires[this.fireSel].id });
-        else if (k === '0' && this.fires.length && this.need(2)) { // disable from the fire list (5.7.5)
+        else if (k === '0' && this.fires.length && this.need(2, () => this.screenKey(this.top, '0'))) { // disable from the fire list (5.7.5)
           const f = this.fires[this.fireSel];
           this.startWiz('unit', { step: 'mode', zone: f.zone, dtype: f.type, a1: f.addr, a2: f.addr, fromList: true });
         }
@@ -708,8 +712,9 @@ export class Panel {
     }
   }
 
-  choose([, , to, level]) {
-    if (level && !this.need(level)) return;
+  choose(item) {
+    const [, , to, level] = item;
+    if (level && !this.need(level, () => this.choose(item))) return;
     if (to.m) this.go({ t: 'menu', m: to.m, sel: 0 });
     else if (to.list) this.go({ t: 'list', kind: to.list, sel: 0 });
     else if (to.s === 'login') this.go({ t: 'login', step: 'user', sel: 0, code: '' });
@@ -721,7 +726,7 @@ export class Panel {
   }
 
   reactivate(d) {
-    if (!d || !this.need(2)) return;
+    if (!d || !this.need(2, () => this.reactivate(d))) return;
     if (d.mode !== 'perm') return this.say('Only permanent disablements can be reactivated.', 'err');
     const { removed, id, at, ...rest } = d;
     if (!this.addDis(rest)) return this.say('Already disabled.');
@@ -752,7 +757,10 @@ export class Panel {
       this.level = level;
       this.log('io', `Login: ${USERS[s.sel][1]}, access level ${LEVEL_NAME[level]}`);
       this.back();
-      return this.say(`Login OK.\nAccess level ${LEVEL_NAME[level]}`, 'ok', 2600);
+      if (!s.then) return this.say(`Login OK.\nAccess level ${LEVEL_NAME[level]}`, 'ok', 2600);
+      if (level < s.need) return this.say(`Access level ${LEVEL_NAME[s.need]} required.`, 'err');
+      this.fx('ok');
+      return s.then(); // carry on with what asked for the login
     }
     s.code = '';
     this.count('badCode');
@@ -1015,7 +1023,7 @@ export class Panel {
       case 'login':
         if (s.step === 'user') {
           return {
-            kind: 'menu', title: 'LOGIN', note: `Current access level: ${LEVEL_NAME[this.level]}`,
+            kind: 'menu', title: 'LOGIN', note: s.need ? `Access level ${LEVEL_NAME[s.need]} required. Select user.` : `Current access level: ${LEVEL_NAME[this.level]}`,
             items: USERS.map(([, name, lvl], i) => ({ n: i + 1, label: `${name}  (${lvl})`, sel: i === s.sel })),
             footer: [this.level > 1 ? 'Select user with 1-3 (or arrows + OK). 0=Log out.' : 'Select user with 1-3 (or arrows + OK).'],
           };
@@ -1028,7 +1036,7 @@ export class Panel {
       case 'wiz': return this.wizView(s);
       case 'confirm': {
         const [title, lines] = this.confirmDef(s.act);
-        return { kind: 'text', tone: 'dis', title, lines, choice: ['Abort', 'Confirm'], footer: ['OK=Confirm, ESC=Abort.'] };
+        return { kind: 'ask', tone: 'dis', title, lines, choice: ['Abort', 'Confirm'], footer: ['Left arrow=Abort, OK=Confirm.'] };
       }
       case 'ack':
         return { kind: 'text', tone: 'dis', title: 'DISABLEMENT ACTIVATED', lines: s.lines, footer: ['OK=Disablement list, ESC=Home.'] };
