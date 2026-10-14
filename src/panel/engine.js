@@ -1030,13 +1030,13 @@ export class Panel {
         }
         return {
           kind: 'form', title: 'LOGIN',
-          fields: [['User', `${USERS[s.sel][1]} (${USERS[s.sel][2]})`], ['Access code', cursor('*'.repeat(s.code.length), 4), true]],
+          fields: [['User', `${USERS[s.sel][1]} (${USERS[s.sel][2]})`], ['Access code', '*'.repeat(s.code.length), true]],
           footer: ['Enter the four-digit access code and press Enter.'],
         };
       case 'wiz': return this.wizView(s);
       case 'confirm': {
         const [title, lines] = this.confirmDef(s.act);
-        return { kind: 'ask', tone: 'dis', title, lines, choice: ['Abort', 'Confirm'], footer: ['Left arrow=Abort, OK=Confirm.'] };
+        return { kind: 'ask', tone: 'dis', title, lines, choice: ['Abort', 'OK'], footer: [] };
       }
       case 'ack':
         return { kind: 'text', tone: 'dis', title: 'DISABLEMENT ACTIVATED', lines: s.lines, footer: ['OK=Disablement list, ESC=Home.'] };

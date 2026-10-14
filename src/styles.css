@@ -91,33 +91,43 @@ body {
 }
 .hit:active .knob { transform: translateY(1.5px) scale(0.97); filter: brightness(0.82); }
 .knob-white {
-  background: radial-gradient(circle at 50% 38%, #ffffff, #eeeeee 55%, #cfd0d1);
-  color: #2d3438;
-  box-shadow: 0 0 0 2px #8f979b, 0 0 0 4px rgba(20, 24, 26, 0.55), 0 3px 5px rgba(0, 0, 0, 0.55);
+  background: radial-gradient(ellipse at 50% 30%, #ffffff, #f1f1f0 55%, #d5d6d5);
+  color: #3a474d;
+  box-shadow: 0 0 0 1.5px #a7adb0, 0 0 0 3.5px rgba(16, 20, 22, 0.55), 0 3px 5px rgba(0, 0, 0, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.12);
 }
-.knob-reset { color: #15853a; }
-.knob-mute { color: #c8352b; }
+/* MULTIPLE ALARMS, RESET, MUTE: oblong keys with well rounded corners */
+.knob-pill { border-radius: 22px / 20px; }
 .knob-grey {
-  background: radial-gradient(circle at 50% 35%, #959ea3, #7a8389 60%, #687177);
-  color: #2b3236;
-  box-shadow: 0 0 0 2px #3c464b, 0 2px 4px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 50% 32%, #8f989d, #7b848a 60%, #6a7378);
+  color: #bfc6c9;
+  box-shadow: 0 0 0 2px #2f3a3f, 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.18);
 }
 .knob-nav {
-  background: radial-gradient(circle at 50% 35%, #a9b1b4, #8d969a 60%, #7a8387);
-  color: #f6f7f8;
-  box-shadow: 0 0 0 1.5px #3f494d, 0 3px 4px rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at 50% 30%, #9da5a9, #8a9397 60%, #7c8589);
+  color: #f3f5f6;
+  box-shadow: 0 0 0 1.5px #343d41, 0 3px 4px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
+.knob-nav .chevron { stroke-width: 1.7; }
 .knob-black {
   background: radial-gradient(circle at 50% 30%, #44434a, #252429 55%, #19181c);
   color: #f7f7f7;
   box-shadow: 0 0 0 1.5px #050505, 0 2px 4px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
+/* Status / Menu: an oval key with a dark rim and a raised inner face */
 .knob-oval {
   position: absolute;
-  border-radius: 14px;
-  background: radial-gradient(ellipse at 50% 35%, #7a8084, #5b6064 65%, #4b4f53);
-  box-shadow: 0 0 0 2px #23282c, 0 2px 3px rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  background: #4c5155;
+  box-shadow: 0 0 0 2px #101214, 0 2px 3px rgba(0, 0, 0, 0.55);
 }
+.knob-oval i {
+  position: absolute;
+  inset: 4px 5px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 35%, #737a7e, #61676b);
+  box-shadow: 0 0 0 1.5px #2d3134;
+}
+.face { position: relative; width: 100%; height: 100%; }
 .ind .knob { position: absolute; }
 .ind-label { position: absolute; top: 50%; transform: translateY(-50%); color: #e6eaec; font-family: "Myriad Pro", "Segoe UI", Inter, Arial, sans-serif; line-height: 1; white-space: nowrap; }
 .ind-fire { font-weight: 700; letter-spacing: 0.5px; color: #edf0f2; }
@@ -140,6 +150,8 @@ body {
 html[data-blink="1"] .lamp[data-state="flash"] .lit { opacity: var(--lamp-dim, 1); }
 .lamp-red[data-state="on"] svg,
 html[data-blink="1"] .lamp-red[data-state="flash"] svg { color: #fff; }
+.lamp-yellow[data-state="on"] svg, html[data-blink="1"] .lamp-yellow[data-state="flash"] svg,
+.lamp-orange[data-state="on"] svg, html[data-blink="1"] .lamp-orange[data-state="flash"] svg { color: #3b3000; }
 
 /* the FIRE print is lit red with a fire alarm */
 [data-state="on"].ind-fire,
@@ -152,5 +164,3 @@ html[data-blink="1"] [data-state="flash"].ind-fire { color: #ff2a1f; text-shadow
 .lcd { font-family: Verdana, "DejaVu Sans", Geneva, Tahoma, Inter, sans-serif; cursor: default; }
 .lcd-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .lcd-clock { clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%); padding-left: 16px; }
-.lcd-cursor { animation: lcd-cursor 1s steps(1) infinite; }
-@keyframes lcd-cursor { 50% { opacity: 0; } }

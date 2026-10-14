@@ -88,15 +88,17 @@ function Pick({ vm }) {
   );
 }
 
-// A question before the panel acts: the text top left, the two answers on the
-// bottom line under the keys that give them (left arrow = Abort, OK = Confirm).
+// A question before the panel acts: the text top left, and on the bottom line
+// the two answers as plain text - "◄ Abort" at the left, "OK" at the right.
 function Ask({ vm }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col px-[12px] pt-[10px]">
-      {vm.lines.map((l, i) => <div key={i} className={i ? 'text-[13.5px] leading-[20px]' : 'mb-[4px] text-[16px] font-bold'}>{l}</div>)}
-      <div className="mt-auto mb-[6px] flex items-center justify-between text-[14px] font-bold">
-        <span className="border-2 border-[#141414] bg-white px-[10px] py-[3px]">◄ {vm.choice[0]}</span>
-        <span className="border-2 border-[#141414] bg-[#1d2b4f] px-[10px] py-[3px] text-white">{vm.choice[1]} OK</span>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 px-[12px] pt-[10px]">
+        {vm.lines.map((l, i) => <div key={i} className={i ? 'text-[13.5px] leading-[20px]' : 'mb-[4px] text-[16px] font-bold'}>{l}</div>)}
+      </div>
+      <div className="flex flex-none items-center justify-between border-t border-[#141414] px-[10px] py-[4px] text-[14px] font-bold">
+        <span>◄ {vm.choice[0]}</span>
+        <span>{vm.choice[1]}</span>
       </div>
     </div>
   );
@@ -109,7 +111,7 @@ function Form({ vm }) {
         <div key={i} className="flex items-center text-[14px]">
           <span className="w-[178px] flex-none">{label}</span>
           {active
-            ? <span className="min-w-[70px] border-2 border-[#141414] bg-white px-[7px] py-[1px] text-[17px] font-bold tracking-[2px]">{value}<span className="lcd-cursor">▏</span></span>
+            ? <span className="min-w-0 text-[17px] font-bold tracking-[3px]">{value}</span>
             : <span className="min-w-0 truncate font-bold">{value}</span>}
         </div>
       ))}

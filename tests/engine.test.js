@@ -267,7 +267,7 @@ test('zone test mode: alarm shown, no bells, resets itself, Test lamp on', () =>
   assert.equal(p.view().rows[0].label, 'ZONE 1');
   keys(p, 'down down down down ok');
   assert.match(p.view().lines[0], /Set ZONE 5 in test mode/);
-  assert.deepEqual(p.view().choice, ['Abort', 'Confirm']);
+  assert.deepEqual(p.view().choice, ['Abort', 'OK']);
   p.key('left'); // left arrow = Abort: back to the list, nothing set
   assert.deepEqual([p.view().kind, p.dis.length], ['pick', 0]);
   keys(p, 'ok ok');
