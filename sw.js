@@ -5,7 +5,7 @@
 // starts with PREFIX; deleting "every cache except mine" would wipe the other
 // installed apps' offline copies.
 const PREFIX = 'fire-panel-trainer-';
-const CACHE = PREFIX + '13dd7f8c44';
+const CACHE = PREFIX + 'c131fee29f';
 const SHELL = ["./",".nojekyll","app.css","app.js","fonts/inter-latin-400-normal.woff2","fonts/inter-latin-500-normal.woff2","fonts/inter-latin-600-normal.woff2","fonts/inter-latin-700-normal.woff2","icons/icon-180.png","icons/icon-192.png","icons/icon-512.png","icons/maskable-512.png","index.html","manifest.webmanifest"];
 const NET_TIMEOUT = 3500; // slow ship internet: fall back to the offline copy
 
