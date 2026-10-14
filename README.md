@@ -2,7 +2,7 @@
 
 A hands-on web simulator of the **Consilium Salwico Control Panel M 4.3** (Salwico Cargo addressable fire detection system), so that operators can practise on it without touching the real panel.
 
-It works on a phone (upright or sideways), a tablet and a laptop.
+It works on a laptop, a tablet and a phone held sideways. The faceplate is drawn after a photograph of the real panel; tap the display to read it enlarged.
 
 ## Open it
 

@@ -33,7 +33,7 @@ export function Guide({ g, inline, bar }) {
     return (
       <div className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-line border-l-4 bg-panel px-2 py-0.5 ${tone}`}>
         {g.count && <span className={`flex-none text-[10.5px] font-extrabold ${modeColor}`}>{g.count}</span>}
-        <div className="guide-text line-clamp-3 min-w-0 flex-1 text-[12px] leading-[14.5px] font-semibold" dangerouslySetInnerHTML={html(g.text)} />
+        <div className="guide-text line-clamp-2 min-w-0 flex-1 text-[12.5px] leading-[15px] font-semibold" dangerouslySetInnerHTML={html(g.text)} />
         {action}
       </div>
     );
@@ -173,6 +173,8 @@ export function Help({ onForget, audio, onTestSound }) {
       <h3 className={h3}>How to use</h3>
       <ul className="list-disc space-y-1 pl-5">
         <li><b>Lessons</b>: choose one at the top and follow the yellow highlights.</li>
+        <li><b>Display too small to read?</b> Tap the display (or 🔍 at the top) to see it big; tap again to go back.</li>
+        <li><b>Phone</b>: hold it sideways. ⛶ at the top gives full screen (Android) for a bigger panel.</li>
         <li><b>Free practice</b>: use the <b>Ship</b> box to start smoke, break a call point or cause a fault, then deal with it on the panel.</li>
         <li><b>Access codes</b> on this trainer: <b>2222</b> for level 2B (operator), <b>3333</b> for level 3 (power user). Menu » 4 Login.</li>
         <li>Without a code you can look at alarms and silence the panel buzzer, nothing else. Choose something that needs a higher level (New disablement, RESET) and the panel lists the users and asks for the code there and then.</li>

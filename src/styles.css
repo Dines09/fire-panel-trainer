@@ -56,66 +56,97 @@ body {
 @keyframes guide-flash { from { background: #33414b; } }
 
 /* ---------- faceplate ---------- */
-/* Charcoal housing; .pad is the grey operating area printed on it. */
-.plate {
-  background: linear-gradient(#232427, #17181a);
-  border: 2px solid #050506;
-  border-radius: 16px;
-  box-shadow: inset 0 0 0 4px #2c2d31, inset 0 0 0 5px #0b0b0c, 0 10px 30px rgba(0, 0, 0, 0.55);
-  color: #f2f3f4;
-  touch-action: manipulation;
-}
-.pad { position: absolute; background: linear-gradient(#b0b3b8, #9b9ea3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+/* The moulding and print are one SVG (.print); keys, lamps and the display sit on top. */
+.plate { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.6)); touch-action: manipulation; }
+.print { position: absolute; inset: 0; }
+.print text { font-family: "Myriad Pro", "Segoe UI", Inter, Arial, sans-serif; }
+.pt-led { font-size: 15.5px; fill: #d4d1cf; }
+.pt-led.b { font-weight: 700; fill: #f1efed; }
+.pt-title { font-size: 18.5px; font-weight: 700; font-style: italic; fill: #f2f2f2; }
+.pt-small { font-size: 12px; fill: #4a4b4b; text-anchor: middle; letter-spacing: 0.2px; }
+.pt-badge { font-size: 16px; font-weight: 800; font-style: italic; fill: #f4f4f4; text-anchor: middle; letter-spacing: 0.3px; }
 
-/* Every key: --kbg face, --kfg symbol, --kbd rim. */
-.key {
-  --kbg: #f1f2f3; --kfg: #1b1c1f; --kbd: #1b1c1f;
-  position: relative;
-  display: inline-flex;
+/* .hit is the touch area of a key, .knob the key you see. */
+.hit {
+  position: absolute;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--kbg);
-  color: var(--kfg);
-  border: 2.5px solid var(--kbd);
-  box-shadow: 0 2.5px 0 rgba(0, 0, 0, 0.45), inset 0 2px 2px rgba(255, 255, 255, 0.35);
+  background: none;
+  border: 0;
+  padding: 0;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
 }
-.key:active { transform: translateY(2px); filter: brightness(0.78); box-shadow: none; }
-.key-light { --kbg: #f4f5f6; }
-.key-nav { --kbg: #dfe0e3; --kfg: #4a4c51; --kbd: #77797e; }
-.key-pad { --kbg: radial-gradient(circle at 35% 30%, #7a6846, #3d3323 70%); --kfg: #f6eedb; --kbd: #0f0d09; }
-.key-reset { --kbg: #f4f5f6; --kfg: #0e8a3c; --kbd: #0e8a3c; border-width: 4px; }
-.key-mute { --kbg: #d62a25; --kfg: #fff; --kbd: #f4f5f6; border-width: 3px; }
-/* indicator keys and the Status / Menu tabs are printed outlines on the grey area */
-.key-ind { --kbg: rgba(255, 255, 255, 0.07); --kbd: #3b3d42; box-shadow: none; }
-.key-tab { --kbg: linear-gradient(#b0b3b8, #a4a7ac); --kfg: #fff; --kbd: transparent; border-width: 0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
-.key-hl, .led-hl { z-index: 2; animation: key-hl 0.9s ease-in-out infinite; }
+.knob {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: transform 0.05s;
+}
+.hit:active .knob { transform: translateY(1.5px) scale(0.97); filter: brightness(0.82); }
+.knob-white {
+  background: radial-gradient(circle at 50% 38%, #ffffff, #eeeeee 55%, #cfd0d1);
+  color: #2d3438;
+  box-shadow: 0 0 0 2px #8f979b, 0 0 0 4px rgba(20, 24, 26, 0.55), 0 3px 5px rgba(0, 0, 0, 0.55);
+}
+.knob-reset { color: #15853a; }
+.knob-mute { color: #c8352b; }
+.knob-grey {
+  background: radial-gradient(circle at 50% 35%, #959ea3, #7a8389 60%, #687177);
+  color: #2b3236;
+  box-shadow: 0 0 0 2px #3c464b, 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.knob-nav {
+  background: radial-gradient(circle at 50% 35%, #a9b1b4, #8d969a 60%, #7a8387);
+  color: #f6f7f8;
+  box-shadow: 0 0 0 1.5px #3f494d, 0 3px 4px rgba(0, 0, 0, 0.55);
+}
+.knob-black {
+  background: radial-gradient(circle at 50% 30%, #44434a, #252429 55%, #19181c);
+  color: #f7f7f7;
+  box-shadow: 0 0 0 1.5px #050505, 0 2px 4px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+.knob-oval {
+  position: absolute;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 35%, #7a8084, #5b6064 65%, #4b4f53);
+  box-shadow: 0 0 0 2px #23282c, 0 2px 3px rgba(0, 0, 0, 0.5);
+}
+.ind .knob { position: absolute; }
+.ind-label { position: absolute; top: 50%; transform: translateY(-50%); color: #e6eaec; font-family: "Myriad Pro", "Segoe UI", Inter, Arial, sans-serif; line-height: 1; white-space: nowrap; }
+.ind-fire { font-weight: 700; letter-spacing: 0.5px; color: #edf0f2; }
+.tab-label { position: absolute; left: 52px; right: 4px; top: 50%; transform: translateY(-50%); color: #eceeef; font-size: 16px; font-family: "Myriad Pro", "Segoe UI", Inter, Arial, sans-serif; text-align: center; }
+.is-hl .knob, .led-hl { z-index: 2; animation: key-hl 0.9s ease-in-out infinite; }
 @keyframes key-hl {
-  0%, 100% { box-shadow: 0 0 0 4px #ffb020, 0 0 14px 6px rgba(255, 176, 32, 0.9); }
-  50% { box-shadow: 0 0 0 2px #ffb020, 0 0 4px 1px rgba(255, 176, 32, 0.45); }
+  0%, 100% { box-shadow: 0 0 0 4px #ffb020, 0 0 16px 7px rgba(255, 176, 32, 0.95); }
+  50% { box-shadow: 0 0 0 2px #ffb020, 0 0 5px 2px rgba(255, 176, 32, 0.5); }
 }
 
 /* A lamp is its dark body plus a lit layer; "flash" follows the shared
    half-second beat on <html data-blink>, so all lamps flash together. */
-.lamp { position: relative; background: #f4f5f6; }
-.lamp-dot { background: #e6e7e9; box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.45); }
+.led { position: absolute; width: 10px; height: 10px; border-radius: 9999px; background: radial-gradient(circle at 40% 35%, #77757a, #4c4a4e); }
 .lamp .lit { position: absolute; inset: -1px; border-radius: inherit; opacity: 0; }
-.lamp-red .lit { background: #ee1c1c; box-shadow: 0 0 14px 4px rgba(238, 28, 28, 0.85); }
-.lamp-orange .lit { background: #ff8a1a; box-shadow: 0 0 14px 4px rgba(255, 138, 26, 0.85); }
-.lamp-yellow .lit { background: #ffd500; box-shadow: 0 0 14px 4px rgba(255, 213, 0, 0.9); }
-.lamp-green .lit { background: #25d058; box-shadow: 0 0 10px 3px rgba(37, 208, 88, 0.85); }
+.lamp-red .lit { background: radial-gradient(circle, #ff6a5c, #e3150f 70%); box-shadow: 0 0 14px 5px rgba(240, 30, 25, 0.85); }
+.lamp-orange .lit { background: radial-gradient(circle, #ffc07a, #ff8414 70%); box-shadow: 0 0 14px 5px rgba(255, 138, 26, 0.85); }
+.lamp-yellow .lit { background: radial-gradient(circle, #fff3a0, #ffd000 70%); box-shadow: 0 0 14px 5px rgba(255, 213, 0, 0.9); }
+.lamp-green .lit { background: radial-gradient(circle, #9dffb7, #19c94a 70%); box-shadow: 0 0 10px 4px rgba(37, 208, 88, 0.85); }
 .lamp[data-state="on"] .lit,
 html[data-blink="1"] .lamp[data-state="flash"] .lit { opacity: var(--lamp-dim, 1); }
 .lamp-red[data-state="on"] svg,
 html[data-blink="1"] .lamp-red[data-state="flash"] svg { color: #fff; }
 
-/* FIRE is white on the grey area and turns red with a fire alarm */
-.ind-fire { color: #fff; }
-[data-state="on"] > .ind-fire,
-html[data-blink="1"] [data-state="flash"] > .ind-fire { color: #e01414; text-shadow: 0 0 1px #fff; }
+/* the FIRE print is lit red with a fire alarm */
+[data-state="on"].ind-fire,
+html[data-blink="1"] [data-state="flash"].ind-fire { color: #ff2a1f; text-shadow: 0 0 10px rgba(255, 40, 30, 0.8); }
+
+.rotate-phone { animation: rotate-phone 2.4s ease-in-out infinite; }
+@keyframes rotate-phone { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
 
 /* ---------- display ---------- */
 .lcd { font-family: Verdana, "DejaVu Sans", Geneva, Tahoma, Inter, sans-serif; cursor: default; }

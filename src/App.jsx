@@ -3,7 +3,7 @@ import { Panel } from './panel/engine.js';
 import { LESSONS } from './lessons.js';
 import { Sound } from './audio.js';
 import { store } from './store.js';
-import { Faceplate } from './ui/Faceplate.jsx';
+import { BigDisplay, Faceplate, H as PLATE_H, W as PLATE_W } from './ui/Faceplate.jsx';
 import { Guide, Help, Ship } from './ui/Side.jsx';
 
 const KEYMAP = {
@@ -52,6 +52,7 @@ export default function App() {
   const [soundOn, setSoundOn] = useState(() => store.get('sound', true));
   const [speed, setSpeed] = useState(1);
   const [sheet, setSheet] = useState(null); // 'help' | 'ship'
+  const [zoom, setZoom] = useState(false); // the display enlarged
   const [install, setInstall] = useState(null);
   // The Ship box on a laptop: 'pinned' = fixed beside the panel, 'open' = slid over it until
   // you click elsewhere, 'closed' = out of the way (opened again with the Ship button).
@@ -64,8 +65,8 @@ export default function App() {
 
   const { w, h } = useViewport();
   const mode = w >= 1000 && h >= 560 ? 'desk' : w > h ? 'land' : 'port';
-  const layout = mode === 'port' && w < 640 ? 'tall' : 'wide';
-  const tablet = mode === 'port' && layout === 'wide'; // upright tablet: room for the Ship box under the panel
+  const rotate = mode === 'port' && w < 640; // a phone held upright: the panel needs it sideways
+  const tablet = mode === 'port' && !rotate; // upright tablet: room for the Ship box under the panel
 
   const lesson = LESSONS.find(l => l.id === lessonId) || null;
   const step = lesson ? lesson.steps[idx] : null;
@@ -199,7 +200,7 @@ export default function App() {
         key: 'free', mode: 'FREE', title: 'Free practice', pct: 0,
         text: 'Free practice: use the panel any way you like.',
         sub: mode === 'desk' ? 'Start smoke, a call point or a fault in the Ship box, then deal with it on the panel. Codes: 2222 (level 2B), 3333 (level 3).'
-          : 'Open <b>Ship</b> to start smoke, a call point or a fault. Codes: 2222 (level 2B), 3333 (level 3).',
+          : 'Open <b>Ship</b> to start smoke, a call point or a fault. Tap the display to read it bigger. Codes: 2222 (level 2B), 3333 (level 3).',
       };
     }
     const n = lesson.steps.length - 1;
@@ -222,11 +223,16 @@ export default function App() {
     setSoundOn(on);
     if (on) { sound.unlock(); sound.test(); }
   };
-  const fullscreen = () => {
+  // full screen hides the browser bars (more room for the panel) and, on a phone, holds it sideways
+  const fullscreen = async () => {
     const d = document;
-    if (d.fullscreenElement) d.exitFullscreen();
-    else if (d.documentElement.requestFullscreen) d.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    try {
+      if (d.fullscreenElement) { await d.exitFullscreen(); return; }
+      if (d.documentElement.requestFullscreen) await d.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+    } catch { /* not available (iPhone Safari) */ }
   };
+  const standalone = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
   const forget = () => {
     store.del('panel');
     store.del('done');
@@ -259,12 +265,14 @@ export default function App() {
       >
         {audio === 'off' ? '🔇' : audio === 'wait' ? '🔈' : '🔊'}
       </button>
-      {mode === 'desk' && document.documentElement.requestFullscreen && <button type="button" className={tbtn} title="Full screen" aria-label="Full screen" onClick={fullscreen}>⛶</button>}
+      {mode !== 'land' && <button type="button" className={tbtn} title="Enlarge the display (or tap the display)" aria-label="Enlarge the display" onClick={() => setZoom(true)}>🔍</button>}
+      {!standalone && document.documentElement.requestFullscreen && <button type="button" className={tbtn} title="Full screen" aria-label="Full screen" onClick={fullscreen}>⛶</button>}
       {install && <button type="button" className={`${tbtn} !border-accent !bg-accent !text-[#1b1300]`} onClick={async () => { install.prompt(); try { await install.userChoice; } catch { /* ignore */ } setInstall(null); }}>⤓ Install</button>}
       <button type="button" className={`${tbtn} font-serif italic`} title="Help" aria-label="Help" onClick={() => setSheet('help')}>i</button>
     </div>
   );
-  const plate = <Faceplate layout={layout} vm={panel.view()} leds={panel.leds} hl={hl} press={press} />;
+  const vm = panel.view();
+  const plate = <Faceplate vm={vm} leds={panel.leds} hl={hl} press={press} onDisplay={() => setZoom(true)} />;
   const shipBox = (
     <section className="rounded-xl border border-line bg-panel px-3 py-2.5">
       <div className="mb-2 flex items-center gap-1.5">
@@ -289,7 +297,7 @@ export default function App() {
   return (
     <div className="app flex h-dvh flex-col overflow-hidden bg-bg text-ink select-none">
       <header className="flex min-h-[42px] flex-none items-center gap-1.5 border-b border-line bg-bg2 px-2 py-1">
-        <div className={`flex flex-none items-center gap-1.5 text-[13px] font-extrabold whitespace-nowrap ${mode === 'desk' ? '' : 'max-[420px]:hidden'}`}>
+        <div className={`flex flex-none items-center gap-1.5 text-[13px] font-extrabold whitespace-nowrap ${mode === 'land' ? 'hidden' : ''}`}>
           <span className="text-[#ff5a4d]">◆</span>{mode === 'land' ? '' : 'Fire Panel Trainer'}
         </div>
         {picker}
@@ -311,7 +319,7 @@ export default function App() {
           {mode === 'port' && <div className="flex-none px-2 pt-2"><Guide g={guide} /></div>}
           {tablet ? (
             <>
-              <div className="flex-none p-2" style={{ height: (w - 16) * 0.424 + 16 }}>{plate}</div>
+              <div className="flex-none p-2" style={{ height: (w - 16) * PLATE_H / PLATE_W + 16 }}>{plate}</div>
               <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">{shipBox}</div>
             </>
           ) : <div className={`min-h-0 flex-1 ${mode === 'land' ? 'p-1' : 'p-2'}`}>{plate}</div>}
@@ -320,6 +328,14 @@ export default function App() {
 
       {sheet === 'ship' && <Sheet title="Ship · what happens away from the panel" onClose={() => setSheet(null)}><Ship panel={panel} speed={speed} setSpeed={setSpeed} /></Sheet>}
       {sheet === 'help' && <Sheet title="Help" onClose={() => setSheet(null)}><Help onForget={forget} audio={audio} onTestSound={() => { sound.unlock(); sound.test(); }} /></Sheet>}
+      {zoom && <BigDisplay vm={vm} onClose={() => setZoom(false)} />}
+      {rotate && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-bg px-8 text-center">
+          <div className="rotate-phone text-[54px]">📱</div>
+          <b className="text-[18px]">Turn your phone sideways</b>
+          <span className="text-[14px] text-muted">The panel is used in landscape, like the real one on the bulkhead.</span>
+        </div>
+      )}
     </div>
   );
 }
