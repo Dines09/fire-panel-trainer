@@ -1,0 +1,21 @@
+{
+  "name": "fire-panel-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Training simulator for the Consilium Salwico Control Panel M 4.3 (fire detection system)",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --serve",
+    "test": "node tests/engine.test.js && node tests/lessons.test.js"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "esbuild": "^0.21.5",
+    "tailwindcss": "^4.3.3"
+  }
+}

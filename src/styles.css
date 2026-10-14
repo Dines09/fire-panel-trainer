@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@font-face { font-family: Inter; font-weight: 400; font-display: swap; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-weight: 500; font-display: swap; src: url("fonts/inter-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-weight: 600; font-display: swap; src: url("fonts/inter-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: Inter; font-weight: 700 800; font-display: swap; src: url("fonts/inter-latin-700-normal.woff2") format("woff2"); }
+
+@theme {
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-bg: #101418;
+  --color-bg2: #161c21;
+  --color-panel: #1c2329;
+  --color-panel2: #232c33;
+  --color-line: #2f3a43;
+  --color-ink: #e8edf1;
+  --color-muted: #95a3ae;
+  --color-accent: #ffb020;
+  --color-accent2: #3fb8ff;
+  --color-ok: #3ddc84;
+}
+
+:root { color-scheme: dark; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+.app {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-touch-callout: none;
+}
+.pick {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2395a3ae' stroke-width='1.8' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+/* ---------- guide ---------- */
+.guide-text .k {
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid #5b6b78;
+  border-radius: 5px;
+  background: #2a343c;
+  font-size: 0.9em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.guide-text b { color: #fff; font-weight: 700; }
+.guide-flash { animation: guide-flash 0.5s ease-out; }
+@keyframes guide-flash { from { background: #33414b; } }
+
+/* ---------- faceplate ---------- */
+.plate {
+  background: linear-gradient(#eef0f2, #dde0e4);
+  border: 2px solid #22262b;
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 5px #f6f7f8, inset 0 0 0 6px #b8bdc3, 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #22262b;
+  touch-action: manipulation;
+}
+.key {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  color: #22262b;
+  border: 2px solid #22262b;
+  box-shadow: 0 2.5px 0 rgba(34, 38, 43, 0.35);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.key:active { transform: translateY(2px); background: #cdd2d8; box-shadow: none; }
+.key-green { color: #0c7a34; border-color: #0c7a34; }
+.key-red { color: #c51616; border-color: #c51616; }
+.key-hl, .led-hl { z-index: 2; animation: key-hl 0.9s ease-in-out infinite; }
+@keyframes key-hl {
+  0%, 100% { box-shadow: 0 0 0 4px #ffb020, 0 0 14px 6px rgba(255, 176, 32, 0.85); }
+  50% { box-shadow: 0 0 0 2px #ffb020, 0 0 4px 1px rgba(255, 176, 32, 0.4); }
+}
+
+/* A lamp is its dark body plus a lit layer; "flash" follows the shared
+   half-second beat on <html data-blink>, so all lamps flash together. */
+.lamp { position: relative; background: #fbfbfc; border: 1.5px solid #22262b; }
+.lamp .lit { position: absolute; inset: -1px; border-radius: inherit; opacity: 0; }
+.lamp-red .lit { background: #e21a1a; box-shadow: 0 0 12px 3px rgba(226, 26, 26, 0.8); }
+.lamp-orange .lit { background: #ff8a1a; box-shadow: 0 0 12px 3px rgba(255, 138, 26, 0.8); }
+.lamp-yellow .lit { background: #ffd500; box-shadow: 0 0 12px 3px rgba(255, 213, 0, 0.85); }
+.lamp-green .lit { background: #1fc24d; box-shadow: 0 0 9px 2px rgba(31, 194, 77, 0.8); }
+.lamp[data-state="on"] .lit,
+html[data-blink="1"] .lamp[data-state="flash"] .lit { opacity: var(--lamp-dim, 1); }
+.lamp-red[data-state="on"] svg,
+html[data-blink="1"] .lamp-red[data-state="flash"] svg { color: #fff; }
+
+/* FIRE is an outline until there is a fire alarm, as printed on the panel */
+.ind-fire { color: #f8f9fa; -webkit-text-stroke: 3.4px #22262b; paint-order: stroke fill; }
+[data-state="on"] > .ind-fire,
+html[data-blink="1"] [data-state="flash"] > .ind-fire { color: #d51515; -webkit-text-stroke-color: #d51515; }
+
+/* ---------- display ---------- */
+.lcd { font-family: Verdana, "DejaVu Sans", Geneva, Tahoma, Inter, sans-serif; cursor: default; }
+.lcd-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.lcd-clock { clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%); padding-left: 16px; }
+.lcd-cursor { animation: lcd-cursor 1s steps(1) infinite; }
+@keyframes lcd-cursor { 50% { opacity: 0; } }
